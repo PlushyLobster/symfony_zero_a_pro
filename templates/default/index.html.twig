@@ -4,10 +4,18 @@
 
 {% block body %}
     <h1>Liste des articles</h1>
-    <ul>
-        <li><a href="{{ url1 }}">Article 1</li> 
-        <li><a href="{{ url2 }}">Article 2</li>
-        <li><a href="{{ url3 }}">Article 3</li>
 
+    {% set temperature = 3 %}
+
+    <p> Temperature : {{ temperature }} </p>
+
+    {% set temperature = temperature + 5 %}
+
+    <p> Temperature : {{ temperature }} </p>
+
+    <ul>
+    {% for article in articles %}
+        <li><a href="{{ article['url'] }}">{{ article['nom'] }}</li> 
+    {% endfor %}
     </ul>
 {% endblock %}
