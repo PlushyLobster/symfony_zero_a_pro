@@ -12,16 +12,13 @@ final class DefaultController extends AbstractController
     #[Route('/', name: 'list_article', methods: ['GET'])]
     public function list_article(): Response
     {
-        $url1 = $this->generateUrl('vue_article', ['id' => 1]);
-        $url2 = $this->generateUrl('vue_article', ['id' => 2]);
-        $url3 = $this->generateUrl('vue_article', ['id' => 3]);
-        $url4 = $this->generateUrl('vue_article', ['id' => 4]);
 
         $articles = [
-            ['url' => $url1, 'nom' => 'Article 1'],
-            ['url' => $url2, 'nom' => 'Article 2'],
-            ['url' => $url3, 'nom' => 'Article 3'],
-            ['url' => $url4, 'nom' => 'Article 4'],
+            ['nom' => 'Article 1', 'id' => 1],
+            ['nom' => 'Article 2', 'id' => 2],
+            ['nom' => 'Article 3', 'id' => 3],
+            ['nom' => 'Article 4', 'id' => 4],
+
         ];
 
         return $this->render('default/index.html.twig', [
