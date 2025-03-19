@@ -1,12 +1,13 @@
 {% extends 'base.html.twig' %}
 
 {% block title %}  
-Article n°{{ id }} 
+{{ article.titre }} 
 {% endblock %}
 
 {% block body %}
     {% include 'menu/_menu.html.twig' %}
 
-<h1>Article n°{{ id }}</h1>
-<p> lorem ipsum </p>
+<h1>{{ article.titre }}</h1>
+<small> {{ article.dateCreation | date('d/m/Y') }} </small>
+<p> {{ article.contenu }} </p>
 {% endblock %}

@@ -7,21 +7,16 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Article;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\ArticleRepository;
 
 final class DefaultController extends AbstractController
 {
     // / qui vas lister l'ensemble de nos articles 
     #[Route('/', name: 'list_article', methods: ['GET'])]
-    public function list_article(): Response
+    public function list_article(ArticleRepository $articleRepository): Response
     {
 
-        $articles = [
-            ['nom' => 'Article 1', 'id' => 1],
-            ['nom' => 'Article 2', 'id' => 2],
-            ['nom' => 'Article 3', 'id' => 3],
-            ['nom' => 'Article 4', 'id' => 4],
-
-        ];
+        $articles = $articleRepository->findAll();
 
         return $this->render('default/index.html.twig', [
             'articles' => $articles,
@@ -31,10 +26,12 @@ final class DefaultController extends AbstractController
 
     // /12 qui vas afficher un article en particulier
     #[Route('/{id}', name: 'vue_article', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function vue_article($id): Response
-    {
+    public function vue_article(Article $article): Response
+    {   
+        //$article = $articleRepository->find($id);
+
         return $this->render('default/vue.html.twig', [
-            'id' => $id,
+            'article' => $article,
         ]);
     }
 

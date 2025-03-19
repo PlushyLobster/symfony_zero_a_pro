@@ -6,11 +6,11 @@
     {% include 'menu/_menu.html.twig' %}
     <h1>Liste des articles</h1>
 
-    {{ articles | taille }}
+    Le tableau contient {{ articles | taille }} articles 
     
     <ul>
     {% for article in articles %}
-        <li><a href="{{ path('vue_article', {'id' : article['id']  }) }}">{{ article['nom'] }}</li> 
+        <li><a href="{{ path('vue_article', {'id' : article.id }) }}">{{ article.titre }}</a></li>
     {% endfor %}
     </ul>
 {% endblock %}
