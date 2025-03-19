@@ -6,14 +6,8 @@
     {% include 'menu/_menu.html.twig' %}
     <h1>Liste des articles</h1>
 
-    {{ articles | length }} articles trouvés le
-    {{ "now" | date("d/m/Y") }}
-
     {{ articles | taille }}
-
-    {% set resultat = addition(2, 5) %}
-    <p> {{ resultat }} </p>
-
+    
     <ul>
     {% for article in articles %}
         <li><a href="{{ path('vue_article', {'id' : article['id']  }) }}">{{ article['nom'] }}</li> 

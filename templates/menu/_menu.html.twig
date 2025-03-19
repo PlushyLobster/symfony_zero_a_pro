@@ -1,4 +1,13 @@
-<ul> 
-    <li><a href="/">Accueil</a> </li>
-    <li><a href="https://youtube.fr">Youtube</a> </li>
-</ul>
+
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Blog</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+      <div class="navbar-nav">
+        <a class="nav-link active" href="{{ path('list_article')}}">Accueil</a>
+    </div>
+  </div>
+</nav>
