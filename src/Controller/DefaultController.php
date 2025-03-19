@@ -5,6 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use App\Entity\Article;
+use Doctrine\ORM\EntityManagerInterface;
 
 final class DefaultController extends AbstractController
 {
@@ -34,5 +36,20 @@ final class DefaultController extends AbstractController
         return $this->render('default/vue.html.twig', [
             'id' => $id,
         ]);
+    }
+
+    //ajoute un article
+    #[Route('/article/ajouter', name: 'ajout_article')]
+    public function ajouter(EntityManagerInterface $manager): Response
+    {
+        $article = new Article();
+        $article->setTitre('Titre de l\'article');
+        $article->setContenu('Ceci est le contenu de l\'article');
+        $article->setDateCreation(new \DateTime());
+
+        $manager->persist($article);
+        $manager->flush();
+
+
     }
 }
