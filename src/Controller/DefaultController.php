@@ -8,6 +8,11 @@ use Symfony\Component\Routing\Attribute\Route;
 use App\Entity\Article;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\ArticleRepository;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TextareaType;
+use Symfony\Component\Form\Extension\Core\Type\DateType;
+use Symfony\Component\HttpFoundation\Request;
+use App\Repository\CategoryRepository; 
 
 final class DefaultController extends AbstractController
 {
@@ -37,16 +42,43 @@ final class DefaultController extends AbstractController
 
     //ajoute un article
     #[Route('/article/ajouter', name: 'ajout_article')]
-    public function ajouter(EntityManagerInterface $manager): Response
+    public function ajouter(Request $request, CategoryRepository $categorieRepository, EntityManagerInterface $manager): Response
     {
-        $article = new Article();
-        $article->setTitre('Titre de l\'article');
-        $article->setContenu('Ceci est le contenu de l\'article');
-        $article->setDateCreation(new \DateTime());
+        $form = $this->createFormBuilder()
+        ->add('titre', TextType::class,[
+            'label' => 'Titre de l\'article'
+        ])
+        ->add('contenu', TextareaType::class)
+        ->add('dateCreation', DateType::class, [
+            'widget' => 'single_text'
+        ])
+        ->getForm();
+        
+        $form->handleRequest($request);
 
-        $manager->persist($article);
-        $manager->flush();
+        if($form->isSubmitted() && $form->isValid()){
+            
+            $article = new Article();
+            $article->setTitre($form->get('titre')->getData());
+            $article->setContenu($form->get('contenu')->getData());
+            $article->setDateCreation($form->get('dateCreation')->getData());
 
+            $category = $categorieRepository->findOneBy([
+                'name' => 'Sport'
+            ]);
+
+            $article->addCategory($category);
+            
+            $manager->persist($article);
+
+            $manager->flush();
+            
+            return $this->redirectToRoute('list_article');
+        }
+
+        return $this->render('default/ajout.html.twig', [
+            'form' => $form->createView()
+        ]);
 
     }
 
