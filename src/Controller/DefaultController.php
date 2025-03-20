@@ -18,7 +18,8 @@ use App\Entity\Comment;
 use App\Form\CommentType;
 use App\Entity\Category;
 use App\Form\CategoryType;
-
+use Psr\Log\LoggerInterface;
+use App\Service\VerificationComment;
 
 final class DefaultController extends AbstractController
 {
@@ -37,35 +38,42 @@ final class DefaultController extends AbstractController
 
     // /12 qui vas afficher un article en particulier
     #[Route('/{id}', name: 'vue_article', requirements: ['id' => '\d+'], methods: ['GET','POST'])]
-    public function vue_article(Article $article, Request $request, EntityManagerInterface $manager): Response
-    {   
-        $comment = new Comment();
 
-        $comment->setArticle($article);
+// /12 qui vas afficher un article en particulier
+#[Route('/{id}', name: 'vue_article', requirements: ['id' => '\d+'], methods: ['GET','POST'])]
+public function vue_article(Article $article, Request $request, EntityManagerInterface $manager, VerificationComment $verifService): Response
+{   
+    $comment = new Comment();
+    $comment->setArticle($article);
 
-        $form = $this->createForm(CommentType::class, $comment);
+    $form = $this->createForm(CommentType::class, $comment);
+    $form->handleRequest($request);
 
-        $form->handleRequest($request);
-
-        if($form->isSubmitted() && $form->isValid()){
-
+    if ($form->isSubmitted() && $form->isValid()) {
+        if ($verifService->commentaireNonAutorise($comment) === false) {
             $manager->persist($comment);
             $manager->flush();
 
+            $this->addFlash('success', 'Votre commentaire a été ajouté avec succès.');
+
             return $this->redirectToRoute('vue_article', ['id' => $article->getId()]);
+        } else {
+            $this->addFlash('warning', 'Votre commentaire contient des mots interdits');      
+            return $this->redirectToRoute('vue_article', ['id' => $article->getId()]);  
 
         }
-        
-        return $this->render('default/vue.html.twig', [
-            'article' => $article,
-            'form' => $form->createView()
-        ]);
     }
+
+    return $this->render('default/vue.html.twig', [
+        'article' => $article,
+        'form' => $form->createView()
+    ]);
+}
 
     //ajoute un article
     #[Route('/article/ajouter', name: 'ajout_article')]
     public function ajouter(Request $request, EntityManagerInterface $manager): Response
-    {
+    {        
         $article = new Article();
 
         $form = $this->createForm(ArticleType::class, $article);
