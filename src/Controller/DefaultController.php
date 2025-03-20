@@ -13,6 +13,12 @@ use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\HttpFoundation\Request;
 use App\Repository\CategoryRepository; 
+use App\Form\ArticleType;
+use App\Entity\Comment;
+use App\Form\CommentType;
+use App\Entity\Category;
+use App\Form\CategoryType;
+
 
 final class DefaultController extends AbstractController
 {
@@ -30,57 +36,81 @@ final class DefaultController extends AbstractController
 
 
     // /12 qui vas afficher un article en particulier
-    #[Route('/{id}', name: 'vue_article', requirements: ['id' => '\d+'], methods: ['GET'])]
-    public function vue_article(Article $article): Response
+    #[Route('/{id}', name: 'vue_article', requirements: ['id' => '\d+'], methods: ['GET','POST'])]
+    public function vue_article(Article $article, Request $request, EntityManagerInterface $manager): Response
     {   
-        //$article = $articleRepository->find($id);
+        $comment = new Comment();
 
+        $comment->setArticle($article);
+
+        $form = $this->createForm(CommentType::class, $comment);
+
+        $form->handleRequest($request);
+
+        if($form->isSubmitted() && $form->isValid()){
+
+            $manager->persist($comment);
+            $manager->flush();
+
+            return $this->redirectToRoute('vue_article', ['id' => $article->getId()]);
+
+        }
+        
         return $this->render('default/vue.html.twig', [
             'article' => $article,
+            'form' => $form->createView()
         ]);
     }
 
     //ajoute un article
     #[Route('/article/ajouter', name: 'ajout_article')]
-    public function ajouter(Request $request, CategoryRepository $categorieRepository, EntityManagerInterface $manager): Response
+    public function ajouter(Request $request, EntityManagerInterface $manager): Response
     {
-        $form = $this->createFormBuilder()
-        ->add('titre', TextType::class,[
-            'label' => 'Titre de l\'article'
-        ])
-        ->add('contenu', TextareaType::class)
-        ->add('dateCreation', DateType::class, [
-            'widget' => 'single_text'
-        ])
-        ->getForm();
-        
+        $article = new Article();
+
+        $form = $this->createForm(ArticleType::class, $article);
+
         $form->handleRequest($request);
 
         if($form->isSubmitted() && $form->isValid()){
-            
-            $article = new Article();
-            $article->setTitre($form->get('titre')->getData());
-            $article->setContenu($form->get('contenu')->getData());
-            $article->setDateCreation($form->get('dateCreation')->getData());
 
-            $category = $categorieRepository->findOneBy([
-                'name' => 'Sport'
-            ]);
-
-            $article->addCategory($category);
-            
             $manager->persist($article);
-
             $manager->flush();
-            
-            return $this->redirectToRoute('list_article');
-        }
 
+            return $this->redirectToRoute('list_article');
+
+        }
+    
         return $this->render('default/ajout.html.twig', [
             'form' => $form->createView()
         ]);
-
     }
+
+        //Ajouter une categorie
+        #[Route('/categorie/ajouter', name: 'ajout_categorie')]
+        public function ajouter_categorie(Request $request, EntityManagerInterface $manager): Response
+        {
+            $category = new Category();
+
+            $form = $this->createForm(CategoryType::class, $category);
+
+            $form->handleRequest($request);
+
+            if($form->isSubmitted() && $form->isValid()){
+
+                $manager->persist($category);
+                $manager->flush();
+
+                return $this->redirectToRoute('list_article');
+
+            }
+
+            return $this->render('default/ajout_category.html.twig', [
+                'form' => $form->createView()
+            ]);
+        }
+
+    
 
     
 }
