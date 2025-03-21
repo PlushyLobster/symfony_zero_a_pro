@@ -17,7 +17,7 @@ class CommentFixtures extends Fixture implements DependentFixtureInterface
             $comment->setContenu('Ceci est le contenu du commentaire');
             $comment->setAuthor('Amélie');
             $comment->setDateComment(new \DateTime());
-            $article = $this->getReference('article-' . $i);
+            $article = $this->getReference('article-' . $i, Article::class);
             $comment->setArticle($article);
             
             $manager->persist($comment);        

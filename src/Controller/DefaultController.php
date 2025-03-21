@@ -28,10 +28,13 @@ final class DefaultController extends AbstractController
     public function list_article(ArticleRepository $articleRepository): Response
     {
 
-        $articles = $articleRepository->findAll();
+        $articles = $articleRepository->findBy([
+            'state' => 'publie'
+        ]);
 
         return $this->render('default/index.html.twig', [
             'articles' => $articles,
+            'brouillon' => false,
         ]);
     }
 
@@ -72,9 +75,12 @@ public function vue_article(Article $article, Request $request, EntityManagerInt
 
     //ajoute un article
     #[Route('/article/ajouter', name: 'ajout_article')]
-    public function ajouter(Request $request, EntityManagerInterface $manager): Response
+    #[Route('/article/{id}/edition', name: 'edition_article', requirements: ['id' => '\d+'], methods: ['GET','POST'])]
+    public function ajouter(?Article $article, Request $request, EntityManagerInterface $manager): Response
     {        
-        $article = new Article();
+        if($article === null){
+            $article = new Article();
+        }
 
         $form = $this->createForm(ArticleType::class, $article);
 
@@ -82,7 +88,15 @@ public function vue_article(Article $article, Request $request, EntityManagerInt
 
         if($form->isSubmitted() && $form->isValid()){
 
-            $manager->persist($article);
+            if($form->get('brouillon')->isClicked()){
+                $article->setState('brouillon');
+            } else {
+                $article->setState('publie');
+            };
+
+            if($article->getId() === null){
+                $manager->persist($article);
+            }
             $manager->flush();
 
             return $this->redirectToRoute('list_article');
@@ -118,7 +132,19 @@ public function vue_article(Article $article, Request $request, EntityManagerInt
             ]);
         }
 
-    
+        #[Route('/article/brouillon', name: 'brouillon_article')]
+        public function brouillon(ArticleRepository $articleRepository): Response
+        {
+            $articles = $articleRepository->findBy([
+                'state' => 'brouillon'
+            ]);
+
+            return $this->render('default/index.html.twig', [
+                'articles' => $articles,
+                'brouillon' => true, 
+            ]);
+        }
+
 
     
 }
