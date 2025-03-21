@@ -91,7 +91,7 @@ public function vue_article(Article $article, Request $request, EntityManagerInt
             if($form->get('brouillon')->isClicked()){
                 $article->setState('brouillon');
             } else {
-                $article->setState('publie');
+                $article->setState('a publier');
             };
 
             if($article->getId() === null){
